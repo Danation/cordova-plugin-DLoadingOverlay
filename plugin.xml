@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="cordova-plugin-DLoadingOverlay" version="1.0.0">
+    <name>DLoadingOverlay</name>
+    <description>Loading Overlay Plugin</description>
+    <license>MIT License</license>
+    <keywords>cordova,ios,loading,overlay</keywords>
+    <js-module src="www/DLoadingOverlay.js" name="DLoadingOverlay"></js-module>
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="DLoadingOverlay">
+                <param name="ios-package" onload="true" value="DLoadingOverlay"/>
+            </feature>
+        </config-file>
+        <source-file src="src/DLoadingOverlay.swift" />
+        <source-file src="src/DLoadingOverlayView.swift" />
+    </platform>
+</plugin>

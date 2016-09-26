@@ -20,49 +20,44 @@ import QuartzCore
     //
     // Creates a CGPathRect with a round rect of the given radius.
     //
-    func newPathWithRoundRect(rect : CGRect, cornerRadius : CGFloat) -> CGPathRef {
+    func newPathWithRoundRect(rect : CGRect, cornerRadius : CGFloat) -> CGPath {
         //
         // Create the boundary path
         //
-        let path = CGPathCreateMutable()
-        CGPathMoveToPoint(path, nil,
-            rect.origin.x,
-            rect.origin.y + rect.size.height - cornerRadius);
-        
+        let path = CGMutablePath()
+        path.move(to: CGPoint(x:rect.origin.x,
+                              y:rect.origin.y + rect.size.height - cornerRadius))
+
         // Top left corner
-        CGPathAddArcToPoint(path, nil,
-            rect.origin.x,
-            rect.origin.y,
-            rect.origin.x + rect.size.width,
-            rect.origin.y,
-            cornerRadius);
-        
+        path.addArc(tangent1End: CGPoint(x:rect.origin.x,
+                                         y:rect.origin.y),
+                    tangent2End: CGPoint(x:rect.origin.x + rect.size.width,
+                                         y:rect.origin.y),
+                    radius: cornerRadius)
+
         // Top right corner
-        CGPathAddArcToPoint(path, nil,
-            rect.origin.x + rect.size.width,
-            rect.origin.y,
-            rect.origin.x + rect.size.width,
-            rect.origin.y + rect.size.height,
-            cornerRadius);
-        
+        path.addArc(tangent1End: CGPoint(x:rect.origin.x + rect.size.width,
+                                         y:rect.origin.y),
+                    tangent2End: CGPoint(x:rect.origin.x + rect.size.width,
+                                         y:rect.origin.y + rect.size.height),
+                    radius: cornerRadius)
+
         // Bottom right corner
-        CGPathAddArcToPoint(path, nil,
-            rect.origin.x + rect.size.width,
-            rect.origin.y + rect.size.height,
-            rect.origin.x,
-            rect.origin.y + rect.size.height,
-            cornerRadius);
+        path.addArc(tangent1End: CGPoint(x:rect.origin.x + rect.size.width,
+                                         y:rect.origin.y + rect.size.height),
+                    tangent2End: CGPoint(x:rect.origin.x,
+                                         y:rect.origin.y + rect.size.height),
+                    radius: cornerRadius)
         
         // Bottom left corner
-        CGPathAddArcToPoint(path, nil,
-            rect.origin.x,
-            rect.origin.y + rect.size.height,
-            rect.origin.x,
-            rect.origin.y,
-            cornerRadius);
+        path.addArc(tangent1End: CGPoint(x:rect.origin.x,
+                                         y:rect.origin.y + rect.size.height),
+                    tangent2End: CGPoint(x:rect.origin.x,
+                                         y:rect.origin.y),
+                    radius: cornerRadius)
         
         // Close the path at the rounded rect
-        CGPathCloseSubpath(path);
+        path.closeSubpath();
         
         return path;
     }
@@ -82,8 +77,8 @@ import QuartzCore
     {
     	let loadingView = DLoadingOverlayView(frame: aSuperview.bounds)
     
-    	loadingView.opaque = false
-    	loadingView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+    	loadingView.isOpaque = false
+    	loadingView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         aSuperview.addSubview(loadingView)
   
         let DEFAULT_LABEL_WIDTH:CGFloat = 280
@@ -95,17 +90,17 @@ import QuartzCore
 
     	loadingLabel.text = "Loading..."
         
-    	loadingLabel.textColor = UIColor.whiteColor()
-        loadingLabel.backgroundColor = UIColor.clearColor()
-        loadingLabel.textAlignment = .Center
-        loadingLabel.font = UIFont.boldSystemFontOfSize(UIFont.labelFontSize())
-        loadingLabel.autoresizingMask = [.FlexibleLeftMargin, .FlexibleRightMargin, .FlexibleTopMargin, .FlexibleBottomMargin]
+    	loadingLabel.textColor = UIColor.white
+        loadingLabel.backgroundColor = UIColor.clear
+        loadingLabel.textAlignment = .center
+        loadingLabel.font = UIFont.boldSystemFont(ofSize: UIFont.labelFontSize)
+        loadingLabel.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
         loadingView.addSubview(loadingLabel)
 
-        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
+        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
         loadingView.addSubview(activityIndicatorView)
 
-    	activityIndicatorView.autoresizingMask = [.FlexibleLeftMargin, .FlexibleRightMargin, .FlexibleTopMargin, .FlexibleBottomMargin]
+    	activityIndicatorView.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
     	activityIndicatorView.startAnimating()
     
         let totalHeight:CGFloat = loadingLabel.frame.size.height + activityIndicatorView.frame.size.height
@@ -122,7 +117,7 @@ import QuartzCore
     	let animation = CATransition()
         animation.type = kCATransitionFade
 
-        aSuperview.layer.addAnimation(animation, forKey: "layerAnimation")
+        aSuperview.layer.add(animation, forKey: "layerAnimation")
     
         return loadingView;
     }
@@ -140,7 +135,7 @@ import QuartzCore
             // Set up the animation
             let animation = CATransition()
             animation.type = kCATransitionFade
-            aSuperview.layer.addAnimation(animation, forKey: "layerAnimation")
+            aSuperview.layer.add(animation, forKey: "layerAnimation")
         }
     }
 
@@ -149,13 +144,13 @@ import QuartzCore
     //
     // Draw the view.
     //
-    override func drawRect(rect: CGRect) {
+    override func draw(_ rect: CGRect) {
 
         let RECT_PADDING:CGFloat = 0.0
-        let	rect = CGRectInset(rect, RECT_PADDING, RECT_PADDING)
+        let	rect = rect.insetBy(dx: RECT_PADDING, dy: RECT_PADDING)
         
         let ROUND_RECT_CORNER_RADIUS:CGFloat = 0.0
-        let roundRectPath = newPathWithRoundRect(rect, cornerRadius: ROUND_RECT_CORNER_RADIUS)
+        let roundRectPath = newPathWithRoundRect(rect: rect, cornerRadius: ROUND_RECT_CORNER_RADIUS)
         
         let context = UIGraphicsGetCurrentContext()
         
@@ -163,13 +158,13 @@ import QuartzCore
         
         let RGB_VALUE:CGFloat = 0.5
         
-        CGContextSetRGBFillColor(context, RGB_VALUE, RGB_VALUE, RGB_VALUE, BACKGROUND_OPACITY)
-        CGContextAddPath(context, roundRectPath)
-        CGContextFillPath(context)
+        context!.setFillColor(red: RGB_VALUE, green: RGB_VALUE, blue: RGB_VALUE, alpha: BACKGROUND_OPACITY)
+        context!.addPath(roundRectPath)
+        context?.fillPath()
         
         let STROKE_OPACITY:CGFloat = 0.0
-        CGContextSetRGBStrokeColor(context, 1, 1, 1, STROKE_OPACITY)
-        CGContextAddPath(context, roundRectPath)
-        CGContextStrokePath(context)
+        context!.setStrokeColor(red: 1, green: 1, blue: 1, alpha: STROKE_OPACITY)
+        context!.addPath(roundRectPath)
+        context!.strokePath()
     }
 }

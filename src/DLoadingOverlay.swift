@@ -5,13 +5,14 @@ import Foundation
     var loadingView : DLoadingOverlayView?
     
     override func pluginInitialize() {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "pageDidLoad:", name: "CDVPageDidLoadNotification", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "pageDidStart:", name: "CDVPluginResetNotification", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "setVisibleNotification:", name: "DLoadingOverlaySetVisibleNotification", object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(DLoadingOverlay.pageDidLoad), name: NSNotification.Name(rawValue: "CDVPageDidLoadNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(DLoadingOverlay.pageDidStart), name: NSNotification.Name(rawValue: "CDVPluginResetNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(DLoadingOverlay.setVisibleNotification), name: NSNotification.Name(rawValue: "DLoadingOverlaySetVisibleNotification"), object: nil)
     }
     
+    @objc(setVisible:)
     func setVisible(command : CDVInvokedUrlCommand) {
-        internalSetVisible(command.arguments[0] as! Bool)
+        internalSetVisible(shouldShow: command.arguments[0] as! Bool)
     }
     
     func internalSetVisible(shouldShow: Bool) {
@@ -19,7 +20,7 @@ import Foundation
             if (loadingView != nil) {
                 loadingView?.removeView()
             }
-            loadingView = DLoadingOverlayView.loadingViewInView((self.webView!.window?.subviews[0])!)
+            loadingView = DLoadingOverlayView.loadingViewInView(aSuperview: (self.webView!.window?.subviews[0])!)
         }
         else {
             if (loadingView != nil) {
@@ -30,15 +31,15 @@ import Foundation
     }
     
     func setVisibleNotification(notification : NSNotification) {
-        print("Notified to set overlay visibility to false")
-        internalSetVisible(notification.object as! Bool)
+        print("Notified to set overlay visibility to false", terminator: "")
+        internalSetVisible(shouldShow: notification.object as! Bool)
     }
     
     func pageDidLoad(notification : NSNotification) {
-        internalSetVisible(false)
+        internalSetVisible(shouldShow: false)
     }
     
     func pageDidStart(notification : NSNotification) {
-        internalSetVisible(true)
+        internalSetVisible(shouldShow: true)
     }
 }
